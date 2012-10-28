@@ -27,14 +27,14 @@
 (defun symbol->keyword (sym)
   "Converts a symbol to a keyworkd symbol.
 
-(symbol->keyword 'foo) -> :foo"
+ (symbol->keyword 'foo) -> :foo"
   (intern (concat ":" (symbol-name sym))))
 
 (defun libxml-attr->xmlgen (attr)
   "Converts an attribute from libxml-parse-* format to xmlgen
 format.
 
-(name . value) -> (:name value) "
+ (name . value) -> (:name value) "
   (list (symbol->keyword (first attr))
         (rest attr)))
 
@@ -42,7 +42,7 @@ format.
   "Converts attributes from libxml-parse-* format to xmlgen
 format.
 
-((x . v) (y . w)) -> (:x v :y v) "
+ ((x . v) (y . w)) -> (:x v :y v) "
   (mapcan #'libxml-attr->xmlgen attrs))
 
 (defun libxml->xmlgen (exp)
