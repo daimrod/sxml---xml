@@ -25,16 +25,28 @@
 (require 'xmlgen)
 
 (defun symbol->keyword (sym)
+  "Converts a symbol to a keyworkd symbol.
+
+(symbol->keyword 'foo) -> :foo"
   (intern (concat ":" (symbol-name sym))))
 
 (defun libxml-attr->xmlgen (attr)
+  "Converts an attribute from libxml-parse-* format to xmlgen
+format.
+
+(name . value) -> (:name value) "
   (list (symbol->keyword (first attr))
         (rest attr)))
 
 (defun libxml-attrs->xmlgen (attrs)
+  "Converts attributes from libxml-parse-* format to xmlgen
+format.
+
+((x . v) (y . w)) -> (:x v :y v) "
   (mapcan #'libxml-attr->xmlgen attrs))
 
 (defun libxml->xmlgen (exp)
+  "Converts an libmlx-parse-* expression to xmlgen expression."
   (etypecase exp
     (cons
      (destructuring-bind (tag-name attrs &rest rest)
@@ -70,6 +82,7 @@
         finally (return ret)))
 
 (defun pretty-print-xml (xml)
+  "Indents the given XML."
   (with-temp-buffer
     (sgml-mode)
     (insert xml)
