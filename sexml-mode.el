@@ -54,8 +54,19 @@ format.
        (append
         (list tag-name)
         (libxml-attrs->xmlgen attrs)
-        (mapcar #'libxml->xmlgen rest))))
-    (string exp)))
+        (remove
+         nil
+         (mapcar #'libxml->xmlgen rest)))))
+    (string
+     (unless (null (string-match "[^ \n\t]+" exp))
+       (trim-string exp)))))
+
+(defun trim-string (string)
+  "Remove white spaces in beginning and ending of STRING.
+White space here is any of: space, tab, emacs newline (line feed,
+ASCII 10)."
+(replace-regexp-in-string "\\`[
+\t\n]*" "" (replace-regexp-in-string "[ \t\n]*\\'" "" string)) )
 
 (defun buffer->sexps (&optional buffer-or-name)
   "Converts the given buffer to a list of s-expressions."
@@ -101,9 +112,7 @@ format.
   (let ((new-content
          (libxml-parse-html-region (point-min) (point-max))))
     (delete-region (point-min) (point-max))
-    (mapc #'(lambda (sexp)
-              (insert (pp-to-string sexp)))
-          (cdadr (libxml->xmlgen new-content)))))
+    (insert (pp-to-string (libxml->xmlgen new-content)))))
 
 (provide 'sexml-mode)
 
