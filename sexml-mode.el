@@ -30,22 +30,22 @@
  (symbol->keyword 'foo) -> :foo"
   (intern (concat ":" (symbol-name sym))))
 
-(defun libxml-attr->xmlgen (attr)
-  "Converts an attribute from libxml-parse-* format to xmlgen
+(defun xml-attr->xmlgen (attr)
+  "Converts an attribute from xml-parse-* format to xmlgen
 format.
 
  (name . value) -> (:name value) "
   (list (symbol->keyword (first attr))
         (rest attr)))
 
-(defun libxml-attrs->xmlgen (attrs)
-  "Converts attributes from libxml-parse-* format to xmlgen
+(defun xml-attrs->xmlgen (attrs)
+  "Converts attributes from xml-parse-* format to xmlgen
 format.
 
  ((x . v) (y . w)) -> (:x v :y v) "
-  (mapcan #'libxml-attr->xmlgen attrs))
+  (mapcan #'xml-attr->xmlgen attrs))
 
-(defun libxml->xmlgen (exp)
+(defun xml->xmlgen (exp)
   "Converts an libmlx-parse-* expression to xmlgen expression."
   (etypecase exp
     (cons
@@ -53,10 +53,10 @@ format.
          exp
        (append
         (list tag-name)
-        (libxml-attrs->xmlgen attrs)
+        (xml-attrs->xmlgen attrs)
         (remove
          nil
-         (mapcar #'libxml->xmlgen rest)))))
+         (mapcar #'xml->xmlgen rest)))))
     (string
      (unless (null (string-match "[^ \n\t]+" exp))
        (trim-string exp)))))
@@ -109,10 +109,12 @@ ASCII 10)."
 (defun buffer-from-xml-to-sexps ()
   "Rewrites the buffer in s-expressions."
   (interactive)
-  (let ((new-content
-         (libxml-parse-xml-region (point-min) (point-max))))
+  (let ((xml-parse-tree
+         (xml-parse-region (point-min) (point-max))))
     (delete-region (point-min) (point-max))
-    (insert (pp-to-string (libxml->xmlgen new-content)))))
+    (insert (pp-to-string (mapcan
+                           #'xml->xmlgen
+                           xml-parse-tree)))))
 
 (provide 'sexml-mode)
 
