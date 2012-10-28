@@ -59,19 +59,17 @@ format.
 
 (defun buffer->sexps (&optional buffer-or-name)
   "Converts the given buffer to a list of s-expressions."
-  (let ((buffer-or-name (or buffer-or-name
-                            (current-buffer))))
-    (with-current-buffer buffer-or-name
-      (loop with start = (1- (point-min))
-            with end = (point-max)
-            with content = (buffer-string)
+  (with-current-buffer (or buffer-or-name (current-buffer))
+    (loop with start = (1- (point-min))
+          with end = (point-max)
+          with content = (buffer-string)
 
-            for ret = (ignore-errors (read-from-string content start))
-            until (null ret)
-            
-            collect (first ret)
-            
-            do (setf start (1+ (rest ret)))))))
+          for ret = (ignore-errors (read-from-string content start))
+          until (null ret)
+          
+          collect (first ret)
+          
+          do (setf start (1+ (rest ret))))))
 
 (defun sexps->xml (sexps)
   "Converts the given set of s-expressions to XML."
@@ -88,6 +86,24 @@ format.
     (insert xml)
     (sgml-pretty-print (point-min) (point-max))
     (buffer-string)))
+
+(defun buffer-from-sexps-to-xml ()
+  "Rewrites the buffer in XML."
+  (interactive)
+  (let ((new-content
+         (sexps->xml (buffer->sexps))))
+    (delete-region (point-min) (point-max))
+    (insert (pretty-print-xml new-content))))
+
+(defun buffer-from-xml-to-sexps ()
+  "Rewrites the buffer in s-expressions."
+  (interactive)
+  (let ((new-content
+         (libxml-parse-html-region (point-min) (point-max))))
+    (delete-region (point-min) (point-max))
+    (mapc #'(lambda (sexp)
+              (insert (pp-to-string sexp)))
+          (cdadr (libxml->xmlgen new-content)))))
 
 (provide 'sexml-mode)
 
