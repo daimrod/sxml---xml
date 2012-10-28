@@ -64,7 +64,7 @@ format.
     (with-current-buffer buffer-or-name
       (loop with start = (1- (point-min))
             with end = (point-max)
-            with content = (buffer-substring-no-properties (1+ start) end)
+            with content = (buffer-string)
 
             for ret = (ignore-errors (read-from-string content start))
             until (null ret)
