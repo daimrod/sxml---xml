@@ -110,7 +110,7 @@ ASCII 10)."
   "Rewrites the buffer in s-expressions."
   (interactive)
   (let ((new-content
-         (libxml-parse-html-region (point-min) (point-max))))
+         (libxml-parse-xml-region (point-min) (point-max))))
     (delete-region (point-min) (point-max))
     (insert (pp-to-string (libxml->xmlgen new-content)))))
 
