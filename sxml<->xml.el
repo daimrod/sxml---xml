@@ -24,6 +24,8 @@
 
 (require 'xmlgen)
 (require 'xml)
+(require 'cl)
+
 (eval-and-compile
 
   ;; [4] NameStartChar
