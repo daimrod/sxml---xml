@@ -26,6 +26,7 @@
 (require 'xml)
 (require 'cl)
 
+;;; Redefined to make it add a newline after each tag.
 (defun sgml-pretty-print (beg end)
   "Simple-minded pretty printer for SGML.
 Re-indents the code and inserts newlines between BEG and END. You
@@ -48,6 +49,7 @@ might want to turn on `auto-fill-mode' to get better results."
         (forward-sexp 1)
         (reindent-then-newline-and-indent)))))
 
+;;; Redefined to accept DTD-like tags e.g. <!pwet>
 (eval-and-compile
 
   ;; [4] NameStartChar
