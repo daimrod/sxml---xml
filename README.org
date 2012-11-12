@@ -1,0 +1,24 @@
+* SXML<->XML
+  
+  This is an attempt to make a bridge between XML and SXML, that is,
+  editing SXML (XML in s-expression) rather than XML.
+  
+* How to use it?
+  
+  1. Put this in your ~.emacs~.
+     #+BEGIN_SRC elisp
+       (require 'sxml<->xml)
+     #+END_SRC
+     
+  2. Open ~test.xml~.
+  
+  3. Switch to SXML with C-c '
+
+  4. Switch back to XML with C-c '
+  
+* TODO
+
+  - better font locking
+  - better integration with nxml-mode
+  - ???
+  - profit
