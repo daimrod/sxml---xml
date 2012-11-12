@@ -26,6 +26,28 @@
 (require 'xml)
 (require 'cl)
 
+(defun sgml-pretty-print (beg end)
+  "Simple-minded pretty printer for SGML.
+Re-indents the code and inserts newlines between BEG and END. You
+might want to turn on `auto-fill-mode' to get better results."
+  (interactive "r")
+  (save-excursion
+    (if (< beg end)
+        (goto-char beg)
+      (goto-char end)
+      (setq end beg)
+      (setq beg (point)))
+    ;; Don't use narrowing because it screws up auto-indent.
+    (setq end (copy-marker end t))
+    (with-syntax-table sgml-tag-syntax-table
+      (while (re-search-forward "<" end t)
+        (goto-char (match-beginning 0))
+        (unless (or ;;(looking-at "</")
+                 (progn (skip-chars-backward " \t") (bolp)))
+          (reindent-then-newline-and-indent))
+        (forward-sexp 1)
+        (reindent-then-newline-and-indent)))))
+
 (eval-and-compile
 
   ;; [4] NameStartChar
