@@ -1,4 +1,4 @@
-;;; sexml-mode.el ---
+;;; sxml<->xml.el ---
 ;;; -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2012 Grégoire Jadi
@@ -210,8 +210,6 @@ ASCII 10)."
                            #'xml->xmlgen
                            xml-parse-tree)))))
 
+(provide 'sxml<->xml)
 
-
-(provide 'sexml-mode)
-
-;;; sexml-mode.el ends here
+;;; sxml<->xml.el ends here
