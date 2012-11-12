@@ -161,8 +161,7 @@ format.
   "Remove white spaces in beginning and ending of STRING.
 White space here is any of: space, tab, emacs newline (line feed,
 ASCII 10)."
-(replace-regexp-in-string "\\`[
-\t\n]*" "" (replace-regexp-in-string "[ \t\n]*\\'" "" string)) )
+(replace-regexp-in-string "\\`[ \t\n]*" "" (replace-regexp-in-string "[ \t\n]*\\'" "" string)))
 
 (defun buffer->sexps (&optional buffer-or-name)
   "Converts the given buffer to a list of s-expressions."
