@@ -211,6 +211,35 @@ ASCII 10)."
                            #'xml->xmlgen
                            xml-parse-tree)))))
 
+(defvar *sxml<->xml-cur* nil
+  "Buffer local variable used to memorize the orignal buffer.")
+(make-local-variable '*sxml<->xml-cur*)
+
+(defun edit-xml ()
+  (interactive)
+  (let ((xml-parse-tree
+         (xml-parse-region (point-min) (point-max))))
+    (setf *sxml<->xml-cur* (current-buffer))
+    (switch-to-buffer "*SXML<->XML*")
+    (delete-region (point-min) (point-max))
+    (emacs-lisp-mode)
+    (local-set-key (kbd "C-c '") 'write-xml)
+    (insert (pp-to-string
+             (mapcan #'xml->xmlgen
+                     xml-parse-tree)))))
+
+(defun write-xml ()
+  (interactive)
+  (let ((new-content
+         (sexps->xml (buffer->sexps))))
+    (local-unset-key (kbd "C-c '"))
+    (switch-to-buffer *sxml<->xml-cur*)
+    (delete-region (point-min) (point-max))
+    (insert (pretty-print-xml new-content))))
+
+(require 'nxml-mode)
+(define-key nxml-mode-map (kbd "C-c '") 'edit-xml)
+
 (provide 'sxml<->xml)
 
 ;;; sxml<->xml.el ends here
