@@ -16,7 +16,7 @@
 
   4. Switch back to XML with C-c '
   
-* TODO
+* TODO What's next?
 
   - better font locking
   - better integration with nxml-mode
