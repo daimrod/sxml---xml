@@ -143,7 +143,6 @@ ASCII 10)."
   (interactive "P")
   (let ((new-content
          (sexps->xml (buffer->sexps))))
-    (local-unset-key (kbd "C-c '"))
     (switch-to-buffer *sxml<->xml-cur*)
     (unless (and discard-changes?
                  (or (not (buffer-modified-p))
