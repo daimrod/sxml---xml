@@ -122,24 +122,6 @@ ASCII 10)."
     (sgml-pretty-print (point-min) (point-max))
     (buffer-string)))
 
-(defun buffer-from-sexps-to-xml ()
-  "Rewrites the buffer in XML."
-  (interactive)
-  (let ((new-content
-         (sexps->xml (buffer->sexps))))
-    (delete-region (point-min) (point-max))
-    (insert (pretty-print-xml new-content))))
-
-(defun buffer-from-xml-to-sexps ()
-  "Rewrites the buffer in s-expressions."
-  (interactive)
-  (let ((xml-parse-tree
-         (xml-parse-region (point-min) (point-max))))
-    (delete-region (point-min) (point-max))
-    (insert (pp-to-string (mapcan
-                           #'xml->xmlgen
-                           xml-parse-tree)))))
-
 (defvar *sxml<->xml-cur* nil
   "Buffer local variable used to memorize the orignal buffer.")
 (make-local-variable '*sxml<->xml-cur*)
