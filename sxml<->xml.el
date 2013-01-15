@@ -131,7 +131,7 @@ ASCII 10)."
   (destructuring-bind (dtd &rest xml)
       (xml-parse-region (point-min) (point-max) nil t)
     (setf *sxml<->xml-cur* (current-buffer))
-    (switch-to-buffer "*SXML<->XML*")
+    (switch-to-buffer (format "*%s SXML*" (buffer-name *sxml<->xml-cur*)))
     (delete-region (point-min) (point-max))
     (emacs-lisp-mode)
     (local-set-key (kbd "C-c '") 'write-xml)
