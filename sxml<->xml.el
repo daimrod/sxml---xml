@@ -139,14 +139,18 @@ ASCII 10)."
              (mapcan #'xml->xmlgen
                      xml)))))
 
-(defun write-xml ()
-  (interactive)
+(defun write-xml (&optional discard-changes?)
+  (interactive "P")
   (let ((new-content
          (sexps->xml (buffer->sexps))))
     (local-unset-key (kbd "C-c '"))
     (switch-to-buffer *sxml<->xml-cur*)
-    (delete-region (point-min) (point-max))
-    (insert (pretty-print-xml new-content))))
+    (unless (and discard-changes?
+                 (or (not (buffer-modified-p))
+                     (and (buffer-modified-p)
+                          (yes-or-no-p "Discard changes?"))))
+      (delete-region (point-min) (point-max))
+      (insert (pretty-print-xml new-content)))))
 
 (require 'nxml-mode)
 (define-key nxml-mode-map (kbd "C-c '") 'edit-xml)
