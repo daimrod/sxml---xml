@@ -49,101 +49,6 @@ might want to turn on `auto-fill-mode' to get better results."
         (forward-sexp 1)
         (reindent-then-newline-and-indent)))))
 
-;;; Redefined to accept DTD-like tags e.g. <!pwet>
-(eval-and-compile
-
-  ;; [4] NameStartChar
-  ;; See the definition of word syntax in `xml-syntax-table'.
-  (setf xml-name-start-char-re (concat "[![:word:]:_]"))
-
-  ;; [4a] NameChar ::= NameStartChar | "-" | "." | [0-9] | #xB7
-  ;;                 | [#x0300-#x036F] | [#x203F-#x2040]
-  (setf xml-name-char-re (concat "[-0-9.![:word:]:_·̀-ͯ‿-⁀]"))
-
-  ;; [5] Name     ::= NameStartChar (NameChar)*
-  (setf xml-name-re (concat xml-name-start-char-re xml-name-char-re "*"))
-
-  ;; [6] Names    ::= Name (#x20 Name)*
-  (setf xml-names-re (concat xml-name-re "\\(?: " xml-name-re "\\)*"))
-
-  ;; [7] Nmtoken  ::= (NameChar)+
-  (setf xml-nmtoken-re (concat xml-name-char-re "+"))
-
-  ;; [8] Nmtokens ::= Nmtoken (#x20 Nmtoken)*
-  (setf xml-nmtokens-re (concat xml-nmtoken-re "\\(?: " xml-name-re "\\)*"))
-
-  ;; [66] CharRef ::= '&#' [0-9]+ ';' | '&#x' [0-9a-fA-F]+ ';'
-  (setf xml-char-ref-re  "\\(?:&#[0-9]+;\\|&#x[0-9a-fA-F]+;\\)")
-
-  ;; [68] EntityRef   ::= '&' Name ';'
-  (setf xml-entity-ref (concat "&" xml-name-re ";"))
-
-  (setf xml-entity-or-char-ref-re (concat "&\\(?:#\\(x\\)?\\([0-9]+\\)\\|\\("
-                                              xml-name-re "\\)\\);"))
-
-  ;; [69] PEReference ::= '%' Name ';'
-  (setf xml-pe-reference-re (concat "%\\(" xml-name-re "\\);"))
-
-  ;; [67] Reference   ::= EntityRef | CharRef
-  (setf xml-reference-re (concat "\\(?:" xml-entity-ref "\\|" xml-char-ref-re "\\)"))
-
-  ;; [10] AttValue    ::= '"' ([^<&"] | Reference)* '"'
-  ;;                    | "'" ([^<&'] | Reference)* "'"
-  (setf xml-att-value-re (concat "\\(?:\"\\(?:[^&\"]\\|"
-                                     xml-reference-re "\\)*\"\\|"
-                                     "'\\(?:[^&']\\|" xml-reference-re
-                                     "\\)*'\\)"))
-
-  ;; [56] TokenizedType ::= 'ID'
-  ;;     [VC: ID] [VC: One ID / Element Type] [VC: ID Attribute Default]
-  ;;                      | 'IDREF'    [VC: IDREF]
-  ;;                      | 'IDREFS'   [VC: IDREF]
-  ;;                      | 'ENTITY'   [VC: Entity Name]
-  ;;                      | 'ENTITIES' [VC: Entity Name]
-  ;;                      | 'NMTOKEN'  [VC: Name Token]
-  ;;                      | 'NMTOKENS' [VC: Name Token]
-  (setf xml-tokenized-type-re (concat "\\(?:ID\\|IDREF\\|IDREFS\\|ENTITY\\|"
-                                          "ENTITIES\\|NMTOKEN\\|NMTOKENS\\)"))
-
-  ;; [58] NotationType ::= 'NOTATION' S '(' S? Name (S? '|' S? Name)* S? ')'
-  (setf xml-notation-type-re
-    (concat "\\(?:NOTATION\\s-+(\\s-*" xml-name-re
-            "\\(?:\\s-*|\\s-*" xml-name-re "\\)*\\s-*)\\)"))
-
-  ;; [59] Enumeration ::= '(' S? Nmtoken (S? '|' S? Nmtoken)* S? ')'
-  ;;       [VC: Enumeration] [VC: No Duplicate Tokens]
-  (setf xml-enumeration-re (concat "\\(?:(\\s-*" xml-nmtoken-re
-                                       "\\(?:\\s-*|\\s-*" xml-nmtoken-re
-                                       "\\)*\\s-+)\\)"))
-
-  ;; [57] EnumeratedType ::= NotationType | Enumeration
-  (setf xml-enumerated-type-re (concat "\\(?:" xml-notation-type-re
-                                           "\\|" xml-enumeration-re "\\)"))
-
-  ;; [54] AttType    ::= StringType | TokenizedType | EnumeratedType
-  ;; [55] StringType ::= 'CDATA'
-  (setf xml-att-type-re (concat "\\(?:CDATA\\|" xml-tokenized-type-re
-                                    "\\|" xml-notation-type-re
-                                    "\\|" xml-enumerated-type-re "\\)"))
-
-  ;; [60] DefaultDecl ::= '#REQUIRED' | '#IMPLIED' | (('#FIXED' S)? AttValue)
-  (setf xml-default-decl-re (concat "\\(?:#REQUIRED\\|#IMPLIED\\|"
-                                        "\\(?:#FIXED\\s-+\\)*"
-                                        xml-att-value-re "\\)"))
-
-  ;; [53] AttDef      ::= S Name S AttType S DefaultDecl
-  (setf xml-att-def-re (concat "\\(?:\\s-*" xml-name-re
-                                   "\\s-*" xml-att-type-re
-                                   "\\s-*" xml-default-decl-re "\\)"))
-
-  ;; [9] EntityValue ::= '"' ([^%&"] | PEReference | Reference)* '"'
-  ;;                   | "'" ([^%&'] | PEReference | Reference)* "'"
-  (setf xml-entity-value-re (concat "\\(?:\"\\(?:[^%&\"]\\|"
-                                        xml-pe-reference-re
-                                        "\\|" xml-reference-re
-                                        "\\)*\"\\|'\\(?:[^%&']\\|"
-                                        xml-pe-reference-re "\\|"
-                                        xml-reference-re "\\)*'\\)")))
 (defun symbol->keyword (sym)
   "Converts a symbol to a keyworkd symbol.
 
@@ -241,8 +146,8 @@ ASCII 10)."
 
 (defun edit-xml ()
   (interactive)
-  (let ((xml-parse-tree
-         (xml-parse-region (point-min) (point-max))))
+  (destructuring-bind (dtd &rest xml)
+      (xml-parse-region (point-min) (point-max) nil t)
     (setf *sxml<->xml-cur* (current-buffer))
     (switch-to-buffer "*SXML<->XML*")
     (delete-region (point-min) (point-max))
@@ -250,7 +155,7 @@ ASCII 10)."
     (local-set-key (kbd "C-c '") 'write-xml)
     (insert (pp-to-string
              (mapcan #'xml->xmlgen
-                     xml-parse-tree)))))
+                     xml)))))
 
 (defun write-xml ()
   (interactive)
